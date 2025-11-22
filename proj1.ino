@@ -2,13 +2,13 @@
 #include <GyverPortal.h>
 #include <WiFi.h>  
 #include <Wire.h>
-#include <Adafruit_BME280.h>
+#include <Adafruit_BME280.h> //++ Актуальний сенсор BMP280
 
 #define AP_SSID "LEV"
 #define AP_PASS "L72V73E08"
 #define BME_SCK 13
-#define BME_MISO 12
-#define BME_MOSI 11
+#define BME_MISO 12  //++ Виводи 0,2,5,12,15 (strapping) потрібно використовувати з обережністю,
+#define BME_MOSI 11  //++  краще взагалі уникати їх використання.
 #define BME_CS 10
 #define DATA_PIN 2
 #define CLOCK_PIN 3
@@ -105,8 +105,8 @@ void action() {
 }
 
 void loop() {
-  ui.tick();
-
+  ui.tick();  //++ Якщо це не блокує виконання, то код нижче виконується з довільною
+              //++  частотою, що не є добре. Використати позначку часу, як в прикладі.
   if (ramping) {
     if (ram) {
       startTime = millis();
@@ -115,8 +115,8 @@ void loop() {
     unsigned long elapsed = millis() - startTime;
     if (elapsed >= valSpinner * 1000UL) {
       ramping = 0;
-      return;
-    }
+      return;  //++ Так робити не треба
+    }  //++ На контролері слід уникати операцій ділення і взяття кореня, краще їх перенести на бік клієнта
     float progress = float(elapsed) / (valSpinner * 1000.0); // тут ми плавно збільшуємо потужність
     float currentPower = progress * valSlider;
     Serial.println(currentPower);
@@ -129,11 +129,17 @@ void loop() {
     tare = 0;
   }
 
+  //++ Читання HX711 є блокуючим. Оновлення даних відбувається 10 разів на секунду.
+  //++ Тому доцільно перед читанням перевірити сенсор на готовність: hx711.isBusy()
+
   weight = 0;
   for(uint8_t i = 0; i < 5; i++) {
     weight += hx711.readChannelBlocking(CHAN_A_GAIN_128); // усереднення по 5 значенням
   }
-  weight_sr = pressure/10;
+  weight_sr = pressure/10; //++ weight_sr = weight/5;
+
+  //++ Уникати операцій ділення. Використовувати операції зсуву.
+  //++ Наприклад, зробити 8 вимірів і усереднити: weight_sr = weight>>3;
 
   pressure = 0;
   for(uint8_t i = 0; i < 10; i++) {
@@ -141,5 +147,5 @@ void loop() {
   }
   pres_sr = 1,66*(pressure/10);
   speed=sqrt(pres_sr); // швидкість потоку повітря за формуллою для трубки Піто. 1,66 - приблизне значення 2/густину повітря при норм. умовах
-
+  //++ Операцію взяття кореня перенести на бік клієнта.
 }
