@@ -20,3 +20,7 @@ ESP32 DevKit - https://arduino.ua/prod3990-wi-fi-modyl-devkit-v1-s-esp-32
 Датчик тиску BMP280 для трубки Піто - https://arduino.ua/prod1758-barometr-datchik-atmosfernogo-davleniya-na-bmp280
 
 Симісторний регулятор для вентилятора - https://arduino.ua/prod2958-dimmer-220v-dlya-arduino
+
+Схема підключення
+<img width="2118" height="1521" alt="pipe" src="https://github.com/user-attachments/assets/a4b3ee43-414b-489b-921b-1ab641b6ff30" />
+
